@@ -8,6 +8,9 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 import plotly.graph_objects as go
 from src.utils import load_and_prepare_data
 from tpot import TPOTRegressor
+import seaborn as sns 
+
+
 
 # Config
 st.set_page_config(page_title="Wine Quality Forecast", layout="wide")
