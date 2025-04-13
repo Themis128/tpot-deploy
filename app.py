@@ -1,34 +1,4 @@
-import streamlit as st import pandas as pd import joblib import os import subprocess from datetime import datetime from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error import plotly.graph_objects as go from src.utils import load_and_prepare_data, validate_pipeline from tpot import TPOTRegressor
-
-Config
-
-st.set_page_config(page_title="Wine Quality Forecast", layout="wide") VERSION = "1.0.1" PIPELINE_DIR = "src/pipelines_clean" DATA_DIR = "data/processed_new/split_regions"
-
-Utility: File + Git
-
-def count_files_and_dirs(path): total_files, total_dirs = 0, 0 for _, dirs, files in os.walk(path): total_dirs += len(dirs) total_files += len(files) return total_dirs, total_files
-
-def get_git_info(): try: branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode().strip() commit = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip() return branch, commit except: return None, None
-
-Sidebar
-
-st.sidebar.title("Wine Quality Forecast") st.sidebar.markdown(f"App Version: {VERSION}") region = st.sidebar.selectbox("Select Region", sorted([ f.replace("merged_", "").replace(".csv", "") for f in os.listdir(DATA_DIR) if f.endswith(".csv") ])) retrain = st.sidebar.button("Retrain Model") uploaded_model = st.sidebar.file_uploader("Upload Custom Model", type=["pkl"])
-
-Load Data
-
-data_path = os.path.join(DATA_DIR, f"merged_{region}.csv") df = pd.read_csv(data_path) X, y, dates = load_and_prepare_data(df)
-
-Filter to only include data from 2010 onwards
-
-mask = dates.dt.year >= 2010 X = X[mask].reset_index(drop=True) y = y[mask].reset_index(drop=True) dates = dates[mask].reset_index(drop=True) if 'wine_type' in X.columns: X = X.drop(columns=['wine_type'])
-
-Show sample
-
-st.title("Wine Quality Prediction Dashboard") st.write(f"Samples: {len(df)} | Features: {X.shape[1]}") st.dataframe(X.head())
-
-Optional retraining
-
-if retrain: st.info("Retraining model using TPOT... please wait (~1 min)") tpot = TPOTRegressor(generations=5, population_size=20, verbosity=2, random_state=42, n_jobs=-1) tpot.fit(X, y) best_model = tpot.fitted_pipeline_ os.makedirs(PIPELINE_DIR, exist_ok=True) joblib.dump(best_model, os.path.join(PIPELINE_DIR, f"{region}_pipeline.pkl")) st.success("✅  Retrained and saved model.")
+import streamlit as st import pandas as pd import joblib import os import subprocess from datetime import datetime from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error import plotly.graph_objects as go from src.utils import load_and_prepare_data, validate_pipeline from tpot import TPOTRegressor(generations=5, population_size=20, verbosity=2, random_state=42, n_jobs=-1) tpot.fit(X, y) best_model = tpot.fitted_pipeline_ os.makedirs(PIPELINE_DIR, exist_ok=True) joblib.dump(best_model, os.path.join(PIPELINE_DIR, f"{region}_pipeline.pkl")) st.success("✅  Retrained and saved model.")
 
 Load pipeline
 
