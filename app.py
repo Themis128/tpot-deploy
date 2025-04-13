@@ -107,31 +107,18 @@ try:
     st.markdown("""This chart shows how wine quality has evolved over time in the selected region.
 You can observe patterns such as seasonal changes, production cycles, or outliers.""")
 
-    # 2. Predicted vs Actual
-    st.subheader("2. Predicted vs Actual (Chronological Line Plot)")
-    fig_pred_actual = go.Figure()
-    fig_pred_actual.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
-    fig_pred_actual.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted'))
-    fig_pred_actual.update_layout(title=f"Predicted vs Actual â€“ {region}",
-                                  xaxis_title="Date",
-                                  yaxis_title="Wine Quality Score")
-    st.plotly_chart(fig_pred_actual, use_container_width=True)
+    # 2. Predicted vs Actual (Bar Chart)
+    st.subheader("2. Predicted vs Actual (Bar Chart)")
+    fig_pred_bar = go.Figure()
+    fig_pred_bar.add_trace(go.Bar(x=dates, y=y, name='Actual'))
+    fig_pred_bar.add_trace(go.Bar(x=dates, y=y_pred, name='Predicted'))
+    fig_pred_bar.update_layout(title=f"Predicted vs Actual (Bar) â€“ {region}",
+                               xaxis_title="Date",
+                               yaxis_title="Wine Quality Score",
+                               barmode='group')
+    st.plotly_chart(fig_pred_bar, use_container_width=True)
 
-    # 3. Feature Importance
-    if hasattr(pipeline, "named_steps"):
-        for name, step in pipeline.named_steps.items():
-            if hasattr(step, "feature_importances_"):
-                st.subheader("3. Feature Importance (Top 10)")
-                feature_names = getattr(step, "feature_names_in_", X.columns)
-                importances = step.feature_importances_
-                importance_df = pd.DataFrame({
-                    "Feature": feature_names,
-                    "Importance": importances
-                }).sort_values(by="Importance", ascending=False).head(10)
-                st.bar_chart(importance_df.set_index("Feature"))
-                break
-
-    # Download predictions
+        # Download predictions
     st.write("Debug lengths:", len(dates), len(y), len(y_pred))
     results_df = pd.DataFrame({
         "Date": dates.reset_index(drop=True),
