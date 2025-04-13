@@ -45,6 +45,21 @@ st.markdown(f"- **R²:** `{r2:.3f}`")
 st.markdown(f"- **MAE:** `{mae:.3f}`")
 st.markdown(f"- **RMSE:** `{rmse:.3f}`")
 
+# Time-series plot
+st.subheader("Wine Quality Over Time")
+trend_fig = go.Figure()
+trend_fig.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
+trend_fig.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted Quality'))
+trend_fig.update_layout(title=f"Wine Quality Trend – {region}",
+                        xaxis_title="Date",
+                        yaxis_title="Wine Quality Score",
+                        height=400)
+st.plotly_chart(trend_fig, use_container_width=True)
+
+st.markdown("""This chart shows how wine quality has evolved over time in the selected region.
+
+You can observe patterns such as seasonal changes, production cycles, or outliers.""")
+
 # Prediction plot
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
