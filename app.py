@@ -80,16 +80,11 @@ try:
         pipeline_path = os.path.join(PIPELINE_DIR, f"{region}_pipeline.pkl")
         pipeline = joblib.load(pipeline_path)
 
-    # Validate pipeline
     if not validate_pipeline(pipeline, X):
         raise ValueError("Invalid pipeline: failed to make predictions.")
 
     y_pred = pipeline.predict(X)
 
-except Exception as e:
-    st.error(f"âŒ  Error loading model: {e}")
-
-else:
     # Metrics
     r2 = r2_score(y, y_pred)
     mae = mean_absolute_error(y, y_pred)
@@ -99,48 +94,30 @@ else:
     st.markdown(f"- **MAE:** `{mae:.3f}`")
     st.markdown(f"- **RMSE:** `{rmse:.3f}`")
 
-    
-# 1. Wine Quality Over Time
-st.subheader("1. Wine Quality Over Time (Actual vs Predicted)")
-fig_trend = go.Figure()
-fig_trend.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
-fig_trend.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted Quality'))
-fig_trend.update_layout(title=f"Trend Over Time â€“ {region}",
-                        xaxis_title="Date",
-                        yaxis_title="Wine Quality Score")
-st.plotly_chart(fig_trend, use_container_width=True)
-
-    st.subheader("Wine Quality Over Time")
-    trend_fig = go.Figure()
-    trend_fig.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
-    trend_fig.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted Quality'))
-    trend_fig.update_layout(title=f"Wine Quality Trend â€“ {region}",
+    # 1. Wine Quality Over Time
+    st.subheader("1. Wine Quality Over Time (Actual vs Predicted)")
+    fig_trend = go.Figure()
+    fig_trend.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
+    fig_trend.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted Quality'))
+    fig_trend.update_layout(title=f"Trend Over Time â€“ {region}",
                             xaxis_title="Date",
-                            yaxis_title="Wine Quality Score",
-                            height=400)
-    st.plotly_chart(trend_fig, use_container_width=True)
+                            yaxis_title="Wine Quality Score")
+    st.plotly_chart(fig_trend, use_container_width=True)
+
     st.markdown("""This chart shows how wine quality has evolved over time in the selected region.
 You can observe patterns such as seasonal changes, production cycles, or outliers.""")
 
-    
-# 2. Predicted vs Actual
-st.subheader("2. Predicted vs Actual (Chronological Line Plot)")
-fig_pred_actual = go.Figure()
-fig_pred_actual.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
-fig_pred_actual.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted'))
-fig_pred_actual.update_layout(title=f"Predicted vs Actual â€“ {region}",
-                              xaxis_title="Date",
-                              yaxis_title="Wine Quality Score")
-st.plotly_chart(fig_pred_actual, use_container_width=True)
+    # 2. Predicted vs Actual
+    st.subheader("2. Predicted vs Actual (Chronological Line Plot)")
+    fig_pred_actual = go.Figure()
+    fig_pred_actual.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
+    fig_pred_actual.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted'))
+    fig_pred_actual.update_layout(title=f"Predicted vs Actual â€“ {region}",
+                                  xaxis_title="Date",
+                                  yaxis_title="Wine Quality Score")
+    st.plotly_chart(fig_pred_actual, use_container_width=True)
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
-    fig.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted'))
-    fig.update_layout(title=f"Predicted vs Actual â€“ {region}",
-                      xaxis_title="Date", yaxis_title="Wine Quality Score")
-    st.plotly_chart(fig, use_container_width=True)
-
-    # Feature importance
+    # 3. Feature Importance
     if hasattr(pipeline, "named_steps"):
         for name, step in pipeline.named_steps.items():
             if hasattr(step, "feature_importances_"):
@@ -154,7 +131,8 @@ st.plotly_chart(fig_pred_actual, use_container_width=True)
                 st.bar_chart(importance_df.set_index("Feature"))
                 break
 
-    # Download button with aligned arrays
+    # Download predictions
+    st.write("Debug lengths:", len(dates), len(y), len(y_pred))
     results_df = pd.DataFrame({
         "Date": dates.reset_index(drop=True),
         "Actual": y.reset_index(drop=True),
