@@ -130,8 +130,12 @@ You can observe patterns such as seasonal changes, production cycles, or outlier
                 st.bar_chart(importance_df.set_index("Feature"))
                 break
 
-    # Download button
-    results_df = pd.DataFrame({"Date": dates, "Actual": y, "Predicted": y_pred})
+    # Download button with aligned arrays
+    results_df = pd.DataFrame({
+        "Date": dates.reset_index(drop=True),
+        "Actual": y.reset_index(drop=True),
+        "Predicted": pd.Series(y_pred).reset_index(drop=True)
+    })
     st.download_button("Download Predictions as CSV",
                        data=results_df.to_csv(index=False),
                        file_name=f"{region}_predictions_{datetime.now().date()}.csv",
