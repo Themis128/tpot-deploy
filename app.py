@@ -96,9 +96,6 @@ try:
         plot_dates = dates.reset_index(drop=True)
         plot_y = y.reset_index(drop=True)
         plot_y_pred = pd.Series(y_pred).reset_index(drop=True)
-
-    except Exception:
-        plot_dates = dates.reset_index(drop=True)
         plot_y = y.reset_index(drop=True)
         plot_y_pred = pd.Series(y_pred).reset_index(drop=True)
 
