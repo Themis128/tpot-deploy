@@ -85,13 +85,11 @@ try:
 
     y_pred = pipeline.predict(X)
 
-    # Filter last year only for charting
-    if len(dates) > 0:
-        last_year = dates.max().year
-        plot_mask = dates.dt.year == last_year
-        plot_dates = dates[plot_mask].reset_index(drop=True)
-        plot_y = y[plot_mask].reset_index(drop=True)
-        plot_y_pred = pd.Series(y_pred)[plot_mask].reset_index(drop=True)
+    # Filter data from 2024 onwards for charting
+    plot_mask = dates.dt.year >= 2024
+    plot_dates = dates[plot_mask].reset_index(drop=True)
+    plot_y = y[plot_mask].reset_index(drop=True)
+    plot_y_pred = pd.Series(y_pred)[plot_mask].reset_index(drop=True)
     else:
         plot_dates = dates.reset_index(drop=True)
         plot_y = y.reset_index(drop=True)
