@@ -1,3 +1,4 @@
+# Core dependencies
 streamlit==1.44.1
 pandas==2.2.2
 numpy==1.23.5
@@ -8,12 +9,15 @@ plotly==5.21.0
 joblib==1.3.2
 tqdm==4.67.1
 xgboost==3.0.0
+
+# AutoML with TPOT
 deap==1.4.2
 update-checker==0.18.0
 stopit==1.1.2
 TPOT==0.11.7
 
-# Prophet dependencies
+# Prophet Forecasting
+Cython==3.0.12
 pystan==2.19.1.1
 cmdstanpy==1.2.5
 prophet==1.1.6
@@ -39,5 +43,5 @@ certifi==2025.1.31
 idna==3.10
 urllib3==2.4.0
 
-# Optional: if needed for GIT info on sidebar
+# Optional: Git info
 GitPython==3.1.44
