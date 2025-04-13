@@ -86,6 +86,10 @@ try:
 
     y_pred = pipeline.predict(X)
 
+except Exception as e:
+    st.error(f"âŒ  Error loading model: {e}")
+
+else:
     # Metrics
     r2 = r2_score(y, y_pred)
     mae = mean_absolute_error(y, y_pred)
