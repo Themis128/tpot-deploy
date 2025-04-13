@@ -85,6 +85,19 @@ try:
 
     y_pred = pipeline.predict(X)
 
+# Filter last year only for charting
+if not dates.empty:
+    last_year = dates.max().year
+    plot_mask = dates.dt.year == last_year
+    plot_dates = dates[plot_mask].reset_index(drop=True)
+    plot_y = y[plot_mask].reset_index(drop=True)
+    plot_y_pred = pd.Series(y_pred)[plot_mask].reset_index(drop=True)
+else:
+    plot_dates = dates
+    plot_y = y
+    plot_y_pred = pd.Series(y_pred)
+
+
     # Metrics
     r2 = r2_score(y, y_pred)
     mae = mean_absolute_error(y, y_pred)
@@ -97,8 +110,8 @@ try:
     # 1. Wine Quality Over Time
     st.subheader("1. Wine Quality Over Time (Actual vs Predicted)")
     fig_trend = go.Figure()
-    fig_trend.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
-    fig_trend.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted Quality'))
+    fig_trend.add_trace(go.Scatter(x=plot_dates, y=plot_y, mode='lines+markers', name='Actual Quality'))
+    fig_trend.add_trace(go.Scatter(x=plot_dates, y=plot_y_pred, mode='lines', name='Predicted Quality'))
     fig_trend.update_layout(title=f"Trend Over Time â€“ {region}",
                             xaxis_title="Date",
                             yaxis_title="Wine Quality Score")
@@ -110,8 +123,8 @@ You can observe patterns such as seasonal changes, production cycles, or outlier
     # 2. Predicted vs Actual (Bar Chart)
     st.subheader("2. Predicted vs Actual (Bar Chart)")
     fig_pred_bar = go.Figure()
-    fig_pred_bar.add_trace(go.Bar(x=dates, y=y, name='Actual'))
-    fig_pred_bar.add_trace(go.Bar(x=dates, y=y_pred, name='Predicted'))
+    fig_pred_bar.add_trace(go.Bar(x=plot_dates, y=plot_y, name='Actual'))
+    fig_pred_bar.add_trace(go.Bar(x=plot_dates, y=plot_y_pred, name='Predicted'))
     fig_pred_bar.update_layout(title=f"Predicted vs Actual (Bar) â€“ {region}",
                                xaxis_title="Date",
                                yaxis_title="Wine Quality Score",
