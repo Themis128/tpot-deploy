@@ -95,7 +95,17 @@ try:
     st.markdown(f"- **MAE:** `{mae:.3f}`")
     st.markdown(f"- **RMSE:** `{rmse:.3f}`")
 
-    # Time-series plot
+    
+# 1. Wine Quality Over Time
+st.subheader("1. Wine Quality Over Time (Actual vs Predicted)")
+fig_trend = go.Figure()
+fig_trend.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
+fig_trend.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted Quality'))
+fig_trend.update_layout(title=f"Trend Over Time â€“ {region}",
+                        xaxis_title="Date",
+                        yaxis_title="Wine Quality Score")
+st.plotly_chart(fig_trend, use_container_width=True)
+
     st.subheader("Wine Quality Over Time")
     trend_fig = go.Figure()
     trend_fig.add_trace(go.Scatter(x=dates, y=y, mode='lines+markers', name='Actual Quality'))
@@ -108,7 +118,17 @@ try:
     st.markdown("""This chart shows how wine quality has evolved over time in the selected region.
 You can observe patterns such as seasonal changes, production cycles, or outliers.""")
 
-    # Predicted vs Actual
+    
+# 2. Predicted vs Actual
+st.subheader("2. Predicted vs Actual (Chronological Line Plot)")
+fig_pred_actual = go.Figure()
+fig_pred_actual.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
+fig_pred_actual.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted'))
+fig_pred_actual.update_layout(title=f"Predicted vs Actual â€“ {region}",
+                              xaxis_title="Date",
+                              yaxis_title="Wine Quality Score")
+st.plotly_chart(fig_pred_actual, use_container_width=True)
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=dates, y=y, mode='lines', name='Actual'))
     fig.add_trace(go.Scatter(x=dates, y=y_pred, mode='lines', name='Predicted'))
@@ -120,7 +140,7 @@ You can observe patterns such as seasonal changes, production cycles, or outlier
     if hasattr(pipeline, "named_steps"):
         for name, step in pipeline.named_steps.items():
             if hasattr(step, "feature_importances_"):
-                st.subheader("Top Features")
+                st.subheader("3. Feature Importance (Top 10)")
                 feature_names = getattr(step, "feature_names_in_", X.columns)
                 importances = step.feature_importances_
                 importance_df = pd.DataFrame({
