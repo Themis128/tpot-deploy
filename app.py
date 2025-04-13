@@ -96,19 +96,6 @@ try:
         plot_dates = dates.reset_index(drop=True)
         plot_y = y.reset_index(drop=True)
         plot_y_pred = pd.Series(y_pred).reset_index(drop=True)
-        plot_y = y.reset_index(drop=True)
-        plot_y_pred = pd.Series(y_pred).reset_index(drop=True)
-
-    else:
-        plot_dates = dates
-        plot_y = y
-        plot_y_pred = pd.Series(y_pred)
-
-else:
-    plot_dates = dates
-    plot_y = y
-    plot_y_pred = pd.Series(y_pred)
-
 
     # Metrics
     r2 = r2_score(y, y_pred)
@@ -143,7 +130,7 @@ You can observe patterns such as seasonal changes, production cycles, or outlier
                                barmode='group')
     st.plotly_chart(fig_pred_bar, use_container_width=True)
 
-        # Download predictions
+    # Download predictions
     st.write("Debug lengths:", len(dates), len(y), len(y_pred))
     results_df = pd.DataFrame({
         "Date": dates.reset_index(drop=True),
