@@ -104,7 +104,7 @@ try:
     st.markdown(f"- **MAE:** `{mae:.3f}`")
     st.markdown(f"- **RMSE:** `{rmse:.3f}`")
 
-    # 1. Wine Quality Over Time (Line Chart)
+    # 1. Wine Quality Over Time
     st.subheader("1. Wine Quality Over Time (Actual vs Predicted)")
     fig_trend = go.Figure()
     fig_trend.add_trace(go.Scatter(x=plot_dates, y=plot_y, mode='lines+markers', name='Actual Quality'))
@@ -136,6 +136,7 @@ Each pair of bars represents a single point in time. Close alignment indicates a
 """)
 
     # Download predictions
+    st.write("Debug lengths:", len(dates), len(y), len(y_pred))
     results_df = pd.DataFrame({
         "Date": dates.reset_index(drop=True),
         "Actual": y.reset_index(drop=True),
@@ -161,3 +162,4 @@ with st.sidebar.expander("Project Info"):
         st.markdown("**Git:** Not a repository")
     st.markdown("---")
     st.markdown("**Author:** Baltzakis Themistoklis")
+
