@@ -5,20 +5,19 @@ import seaborn as sns
 import joblib
 import json
 from datetime import datetime
+from sklearn.inspection import permutation_importance
 
 # ================================
 # Data Preparation
 # ================================
-
 def load_and_prepare_data(df, date_col='time', target_col='wine_quality_score'):
     """
     Cleans and returns features (X), target (y), and date index from dataframe.
     """
     df = df.copy()
-
     if target_col not in df.columns:
         raise ValueError(f"Missing target column '{target_col}'.")
-
+    
     if date_col in df.columns:
         df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
         df = df.sort_values(by=date_col)
@@ -26,22 +25,21 @@ def load_and_prepare_data(df, date_col='time', target_col='wine_quality_score'):
     else:
         print(f"⚠️ '{date_col}' not found. Using row index for time axis.")
         dates = pd.Series(range(len(df)), name="index")
-
+    
     df = df.dropna(subset=[target_col])
     y = df[target_col]
-
+    
     drop_cols = [target_col, date_col, 'id', 'region', 'wine_type']
     X = df.drop(columns=[col for col in drop_cols if col in df.columns])
-
+    
     if 'wine_type' in df.columns and 'wine_type' not in X.columns:
         X['wine_type'] = df['wine_type'].astype('category').cat.codes
-
+    
     return X, y, dates
 
 # ================================
 # Plotting
 # ================================
-
 def plot_predictions(y_true, y_pred, dates, region_name, output_dir):
     """
     Saves a line plot comparing predicted vs actual wine quality scores.
@@ -62,7 +60,6 @@ def plot_predictions(y_true, y_pred, dates, region_name, output_dir):
 # ================================
 # Feature Importance Summary
 # ================================
-
 def summarize_top_features(models_dir="models", top_k=10):
     """
     Summarizes top K features from all trained models (.pkl files) in the given directory.
@@ -98,7 +95,6 @@ def summarize_top_features(models_dir="models", top_k=10):
 # ================================
 # Save Feature Importances (JSON)
 # ================================
-
 def save_feature_importance(model, feature_names, region, model_name, output_dir="models/features"):
     """
     Save feature importances for a single model to JSON.
@@ -115,12 +111,11 @@ def save_feature_importance(model, feature_names, region, model_name, output_dir
             "model": model_name,
             "importances": importances
         }, f, indent=2)
-    print(f"✅  Saved feature importances: {out_path}")
+    print(f"✅   Saved feature importances: {out_path}")
 
 # ================================
 # Versioned Pipeline Saver
 # ================================
-
 def save_pipeline_with_version(pipeline, region, output_dir="src/pipelines_clean"):
     """
     Saves pipeline with version tag (datetime-based) for reproducibility.
@@ -130,5 +125,29 @@ def save_pipeline_with_version(pipeline, region, output_dir="src/pipelines_clean
     filename = f"{region}_pipeline_{timestamp}.pkl"
     path = os.path.join(output_dir, filename)
     joblib.dump(pipeline, path)
-    print(f"✅  Saved versioned pipeline: {path}")
+
+    # Also save metadata
+    metadata = {
+        "region": region,
+        "timestamp": timestamp,
+        "model_type": type(pipeline).__name__
+    }
+    with open(path.replace(".pkl", ".json"), "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    print(f"✅   Saved versioned pipeline and metadata: {path}")
     return path
+
+# ================================
+# Pipeline Validation
+# ================================
+def validate_pipeline(pipeline, X_sample):
+    """
+    Validates if the pipeline can generate predictions from X_sample.
+    """
+    try:
+        _ = pipeline.predict(X_sample.head(1))
+        return True
+    except Exception as e:
+        print(f"❌ Pipeline validation failed: {e}")
+        return False
