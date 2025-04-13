@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import joblib
@@ -69,13 +68,13 @@ if retrain:
     best_model = tpot.fitted_pipeline_
     os.makedirs(PIPELINE_DIR, exist_ok=True)
     joblib.dump(best_model, os.path.join(PIPELINE_DIR, f"{region}_pipeline.pkl"))
-    st.success("âœ…  Retrained and saved model.")
+    st.success("✅  Retrained and saved model.")
 
 # Load pipeline
 try:
     if uploaded_model:
         pipeline = joblib.load(uploaded_model)
-        st.success("âœ…  Custom model loaded.")
+        st.success("✅  Custom model loaded.")
     else:
         pipeline_path = os.path.join(PIPELINE_DIR, f"{region}_pipeline.pkl")
         pipeline = joblib.load(pipeline_path)
@@ -86,10 +85,11 @@ try:
     y_pred = pipeline.predict(X)
 
     # Filter data from 2024 onwards for charting
-    plot_mask = dates.dt.year >= 2024
-    plot_dates = dates[plot_mask].reset_index(drop=True)
-    plot_y = y[plot_mask].reset_index(drop=True)
-    plot_y_pred = pd.Series(y_pred)[plot_mask].reset_index(drop=True)
+    if len(dates) > 0:
+        plot_mask = dates.dt.year >= 2024
+        plot_dates = dates[plot_mask].reset_index(drop=True)
+        plot_y = y[plot_mask].reset_index(drop=True)
+        plot_y_pred = pd.Series(y_pred)[plot_mask].reset_index(drop=True)
     else:
         plot_dates = dates.reset_index(drop=True)
         plot_y = y.reset_index(drop=True)
@@ -100,7 +100,7 @@ try:
     mae = mean_absolute_error(y, y_pred)
     rmse = mean_squared_error(y, y_pred, squared=False)
     st.subheader("Model Performance")
-    st.markdown(f"- **RÂ²:** `{r2:.3f}`")
+    st.markdown(f"- **R²:** `{r2:.3f}`")
     st.markdown(f"- **MAE:** `{mae:.3f}`")
     st.markdown(f"- **RMSE:** `{rmse:.3f}`")
 
@@ -109,7 +109,7 @@ try:
     fig_trend = go.Figure()
     fig_trend.add_trace(go.Scatter(x=plot_dates, y=plot_y, mode='lines+markers', name='Actual Quality'))
     fig_trend.add_trace(go.Scatter(x=plot_dates, y=plot_y_pred, mode='lines', name='Predicted Quality'))
-    fig_trend.update_layout(title=f"Trend Over Time â€“ {region}",
+    fig_trend.update_layout(title=f"Trend Over Time – {region}",
                             xaxis_title="Date",
                             yaxis_title="Wine Quality Score")
     st.plotly_chart(fig_trend, use_container_width=True)
@@ -122,7 +122,7 @@ You can observe patterns such as seasonal changes, production cycles, or outlier
     fig_pred_bar = go.Figure()
     fig_pred_bar.add_trace(go.Bar(x=plot_dates, y=plot_y, name='Actual'))
     fig_pred_bar.add_trace(go.Bar(x=plot_dates, y=plot_y_pred, name='Predicted'))
-    fig_pred_bar.update_layout(title=f"Predicted vs Actual (Bar) â€“ {region}",
+    fig_pred_bar.update_layout(title=f"Predicted vs Actual (Bar) – {region}",
                                xaxis_title="Date",
                                yaxis_title="Wine Quality Score",
                                barmode='group')
@@ -141,7 +141,7 @@ You can observe patterns such as seasonal changes, production cycles, or outlier
                        mime="text/csv")
 
 except Exception as e:
-    st.error(f"âŒ  Error loading model: {e}")
+    st.error(f"❌  Error loading model: {e}")
 
 # Footer
 with st.sidebar.expander("Project Info"):
